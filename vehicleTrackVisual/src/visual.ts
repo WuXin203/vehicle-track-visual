@@ -51,7 +51,6 @@ export class Visual implements IVisual {
     private readonly root: HTMLDivElement;
     private readonly status: HTMLDivElement;
     private readonly toolbar: HTMLDivElement;
-    private readonly credentialsPanel: HTMLFormElement;
     private readonly legend: HTMLDivElement;
     private readonly vehicleList: HTMLDivElement;
     private readonly mapElement: HTMLDivElement;
@@ -62,7 +61,6 @@ export class Visual implements IVisual {
     private destroyed = false;
     private readonly formattingService = new FormattingSettingsService();
     private formattingSettings = new VisualFormattingSettingsModel();
-    private currentDataView?: powerbi.DataView;
 
     constructor(options: VisualConstructorOptions) {
         this.host = options.host;
@@ -73,12 +71,10 @@ export class Visual implements IVisual {
         this.status.className = "vehicle-status";
         this.toolbar = document.createElement("div");
         this.toolbar.className = "vehicle-toolbar";
-        this.addToolbarButton("地图凭据", () => this.toggleCredentialsPanel());
         this.addToolbarButton("全部显示", () => this.setAllVehiclesVisible(true));
         this.addToolbarButton("全部隐藏", () => this.setAllVehiclesVisible(false));
         this.addToolbarButton("FitView", () => this.fitVisibleVehicles());
         this.addToolbarButton("清除选择", () => { void this.selectionManager.clear(); });
-        this.credentialsPanel = this.createCredentialsPanel();
         this.legend = document.createElement("div");
         this.legend.className = "vehicle-legend";
         const content = document.createElement("div");
@@ -89,7 +85,7 @@ export class Visual implements IVisual {
         this.mapElement = document.createElement("div");
         this.mapElement.className = "vehicle-map";
         content.append(this.vehicleList, this.mapElement);
-        this.root.append(this.status, this.toolbar, this.credentialsPanel, this.legend, content);
+        this.root.append(this.status, this.toolbar, this.legend, content);
         options.element.appendChild(this.root);
     }
 
@@ -106,7 +102,6 @@ export class Visual implements IVisual {
 
     private async render(options: VisualUpdateOptions): Promise<void> {
         const dataView = options.dataViews?.[0];
-        this.currentDataView = dataView;
         if (dataView) this.formattingSettings = this.formattingService.populateFormattingSettingsModel(VisualFormattingSettingsModel, dataView);
         const config = getMapConfig(dataView);
         const categories = dataView?.categorical?.categories ?? [];
@@ -125,7 +120,7 @@ export class Visual implements IVisual {
             return;
         }
         if (!config.key || !config.securityCode) {
-            this.setStatus("请点击“地图凭据”输入 AMap Web Key 与 securityJsCode。", "notice");
+            this.setStatus("请在“格式”窗格 → 高德地图配置中填写 AMap Web Key 与 securityJsCode。", "notice");
             return;
         }
         const longitude = byRole.get("longitude")!;
@@ -245,64 +240,6 @@ export class Visual implements IVisual {
         button.textContent = label;
         button.addEventListener("click", action);
         this.toolbar.appendChild(button);
-    }
-
-    private createCredentialsPanel(): HTMLFormElement {
-        const panel = document.createElement("form");
-        panel.className = "vehicle-credentials hidden";
-        panel.setAttribute("aria-label", "地图凭据配置");
-        const keyLabel = document.createElement("label");
-        keyLabel.textContent = "AMap Web Key";
-        const keyInput = document.createElement("input");
-        keyInput.type = "password";
-        keyInput.name = "apiKey";
-        keyInput.autocomplete = "new-password";
-        keyInput.placeholder = "输入 Web Key";
-        keyInput.setAttribute("aria-label", "AMap Web Key");
-        const codeLabel = document.createElement("label");
-        codeLabel.textContent = "securityJsCode";
-        const codeInput = document.createElement("input");
-        codeInput.type = "password";
-        codeInput.name = "securityCode";
-        codeInput.autocomplete = "new-password";
-        codeInput.placeholder = "输入安全密钥";
-        codeInput.setAttribute("aria-label", "securityJsCode");
-        const save = document.createElement("button");
-        save.type = "submit";
-        save.className = "vehicle-toolbar-button";
-        save.textContent = "保存凭据";
-        panel.append(keyLabel, keyInput, codeLabel, codeInput, save);
-        panel.addEventListener("submit", event => {
-            event.preventDefault();
-            const current = getMapConfig(this.currentDataView);
-            const key = keyInput.value.trim();
-            const securityCode = codeInput.value.trim();
-            if ((!key && !current.key) || (!securityCode && !current.securityCode)) {
-                this.setStatus("请填写尚未配置的 Web Key 和 securityJsCode。", "notice");
-                return;
-            }
-            const properties: Record<string, unknown> = {};
-            if (key) properties.apiKey = key;
-            if (securityCode) properties.securityCode = securityCode;
-            this.host.persistProperties({ merge: [{ objectName: "map", selector: null, properties }] });
-            keyInput.value = "";
-            codeInput.value = "";
-            panel.classList.add("hidden");
-            this.setStatus("凭据已保存到报表配置。输入框已清空；报表配置本身不提供加密保管。", "notice");
-        });
-        return panel;
-    }
-
-    private toggleCredentialsPanel(): void {
-        const opening = this.credentialsPanel.classList.contains("hidden");
-        this.credentialsPanel.classList.toggle("hidden", !opening);
-        if (!opening) return;
-        const config = getMapConfig(this.currentDataView);
-        const keyInput = this.credentialsPanel.elements.namedItem("apiKey") as HTMLInputElement;
-        const codeInput = this.credentialsPanel.elements.namedItem("securityCode") as HTMLInputElement;
-        keyInput.placeholder = config.key ? "已配置，留空则保持不变" : "输入 Web Key";
-        codeInput.placeholder = config.securityCode ? "已配置，留空则保持不变" : "输入安全密钥";
-        keyInput.focus();
     }
 
     private renderVehicleList(tracks: VehicleTrack[]): void {

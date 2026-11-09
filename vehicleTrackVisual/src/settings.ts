@@ -3,6 +3,12 @@
 import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
 
 class MapCard extends formattingSettings.SimpleCard {
+    apiKey = new formattingSettings.TextInput({
+        name: "apiKey", displayName: "AMap Web Key", value: "", placeholder: "在高德开放平台创建的 Web 端 Key"
+    });
+    securityCode = new formattingSettings.TextInput({
+        name: "securityCode", displayName: "securityJsCode", value: "", placeholder: "高德安全密钥"
+    });
     coordinateSystem = new formattingSettings.ItemDropdown({
         name: "coordinateSystem", displayName: "源坐标系", value: { displayName: "GCJ-02", value: "GCJ02" },
         items: [
@@ -36,7 +42,7 @@ class MapCard extends formattingSettings.SimpleCard {
     });
     name = "map";
     displayName = "高德地图配置";
-    slices = [this.coordinateSystem, this.markerStyle, this.linePalette, this.pointPalette];
+    slices = [this.apiKey, this.securityCode, this.coordinateSystem, this.markerStyle, this.linePalette, this.pointPalette];
 }
 
 export class VisualFormattingSettingsModel extends formattingSettings.Model {

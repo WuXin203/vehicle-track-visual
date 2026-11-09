@@ -11,7 +11,7 @@ npm run lint
 npm run package
 ```
 
-打包结果位于 `dist/`。导入 Power BI Desktop 后，点击视觉对象顶部的“地图凭据”按钮输入 Web Key 和 `securityJsCode`；输入框使用圆点遮挡，已保存的凭据不会回填显示，留空保存可保留已有值。发布前请在 `pbiviz.json` 中将示例维护者邮箱和 support URL 换成项目实际信息。
+打包结果位于 `dist/`。导入 Power BI Desktop 前，在格式窗格的“高德地图配置”里填写 Web Key 和 `securityJsCode`。发布前请在 `pbiviz.json` 中将示例维护者邮箱和 support URL 换成项目实际信息。
 
 ## Power BI 字段映射与地图功能
 
@@ -30,7 +30,7 @@ npm run package
 ## 高德配置与安全
 
 1. 在高德开放平台创建 Web 端 JS API Key，限制来源并设置配额。
-2. 按高德 JS API 2.0 安全文档配置 `securityJsCode`。视觉对象内的密码框只遮挡输入显示；凭据仍会随报表保存，并可能被有权限的报表使用者或浏览器运行环境读取，不应将其视为加密或密钥保管库。
+2. 按高德 JS API 2.0 安全文档配置 `securityJsCode`。该视觉对象通过 Power BI 格式属性接收配置；配置会随报表保存并可能被有权限的报表使用者查看，不应将其视为密钥保管库。
 3. `capabilities.json` 声明对 `*.amap.com` 与 `*.autonavi.com` 的 `WebAccess` 权限。管理员策略、容器网络/CSP、企业代理和高德来源校验均可能阻止加载。
 4. 源坐标系默认 GCJ-02；选择 WGS-84 或 BD-09 时，视觉对象在统一数据处理模块内转换为 GCJ-02。WGS-84 中国范围外坐标保留原值。
 
