@@ -1,0 +1,13 @@
+node_modules/
+.tmp/
+dist/
+webpack.statistics.*.html
+*.log
+npm-debug.log*
+.eslintcache
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+*.pem
+*.pfx

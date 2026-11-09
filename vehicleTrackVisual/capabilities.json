@@ -1,0 +1,69 @@
+{
+  "dataRoles": [
+    { "displayName": "Longitude", "name": "longitude", "kind": "Grouping" },
+    { "displayName": "Latitude", "name": "latitude", "kind": "Grouping" },
+    { "displayName": "VIN", "name": "vin", "kind": "Grouping" },
+    { "displayName": "Timestamp", "name": "timestamp", "kind": "Grouping" },
+    { "displayName": "AbnormalTag", "name": "abnormalTag", "kind": "Grouping" }
+  ],
+  "objects": {
+    "map": {
+      "displayName": "高德地图配置",
+      "properties": {
+        "apiKey": { "displayName": "AMap Web Key", "type": { "text": true } },
+        "securityCode": { "displayName": "安全密钥 (securityJsCode)", "type": { "text": true } },
+        "coordinateSystem": {
+          "displayName": "源坐标系",
+          "type": { "enumeration": [
+            { "displayName": "GCJ-02", "value": "GCJ02" },
+            { "displayName": "WGS-84", "value": "WGS84" },
+            { "displayName": "BD-09", "value": "BD09" }
+          ] }
+        },
+        "markerStyle": {
+          "displayName": "GPS 点形态",
+          "type": { "enumeration": [
+            { "displayName": "圆点", "value": "circle" },
+            { "displayName": "定位图钉", "value": "pin" }
+          ] }
+        },
+        "linePalette": {
+          "displayName": "轨迹线色卡",
+          "type": { "enumeration": [
+            { "displayName": "鲜明自动色卡", "value": "vivid" },
+            { "displayName": "柔和自动色卡", "value": "soft" },
+            { "displayName": "色盲友好 8 色", "value": "accessible" }
+          ] }
+        },
+        "pointPalette": {
+          "displayName": "普通点色卡",
+          "type": { "enumeration": [
+            { "displayName": "鲜明自动色卡", "value": "vivid" },
+            { "displayName": "柔和自动色卡", "value": "soft" },
+            { "displayName": "色盲友好 8 色", "value": "accessible" }
+          ] }
+        }
+      }
+    }
+  },
+  "dataViewMappings": [{
+    "categorical": {
+      "categories": {
+        "select": [
+          { "for": { "in": "longitude" } },
+          { "for": { "in": "latitude" } },
+          { "for": { "in": "vin" } },
+          { "for": { "in": "timestamp" } },
+          { "for": { "in": "abnormalTag" } }
+        ],
+        "dataReductionAlgorithm": { "top": { "count": 1000 } }
+      }
+    }
+  }],
+  "supportsMultiVisualSelection": true,
+  "privileges": [{
+    "name": "WebAccess",
+    "essential": true,
+    "parameters": ["https://*.amap.com", "https://*.autonavi.com"]
+  }]
+}
